@@ -1,0 +1,70 @@
+{
+  "name": "subtrack",
+  "version": "1.0.0",
+  "description": "Subscription tracking and reminder application",
+  "main": "src/main/index.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "vite",
+    "build": "vite build && electron-builder",
+    "lint": "eslint . --ext .js,.vue",
+    "format": "prettier --write \"src/**/*.{js,vue}\"",
+    "test": "vitest"
+  },
+  "author": {
+    "name": "jin-taiyu",
+    "email": "winskingid@gmail.com"
+  },
+  "dependencies": {
+    "@fullcalendar/daygrid": "^6.1.15",
+    "@fullcalendar/interaction": "^6.1.15",
+    "@fullcalendar/vue3": "^6.1.15",
+    "concurrently": "^8.2.0",
+    "dayjs": "^1.11.10",
+    "electron-store": "^8.1.0",
+    "node-cron": "^3.0.2",
+    "node-notifier": "^10.0.1",
+    "pinia": "^2.1.0",
+    "vue": "^3.3.0",
+    "vue-router": "^4.5.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.2.0",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.0.0",
+    "electron-debug": "^3.2.0",
+    "electron-squirrel-startup": "^1.0.0",
+    "eslint": "^8.45.0",
+    "eslint-plugin-vue": "^9.17.0",
+    "prettier": "^3.0.0",
+    "vite": "^4.4.0",
+    "vite-plugin-electron": "^0.11.0",
+    "vitest": "^0.34.0"
+  },
+  "build": {
+    "appId": "com.example.subtrack",
+    "productName": "SubTrack",
+    "copyright": "Copyright © 2023",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "src/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Utility"
+    }
+  }
+}
