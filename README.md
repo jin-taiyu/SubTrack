@@ -3,6 +3,10 @@
 ## Introduction
 SubTrack is a cross-platform desktop application designed to help users manage their subscriptions effectively. Built with Electron and Vue.js, it provides an intuitive calendar view for tracking subscription renewals and payments, with local data storage for enhanced privacy.
 
+![home-page](docs/home-page.png)
+
+![add-subscription](docs/add-subscription.png)
+
 ## Key Features
 - 📅 **Calendar View**: Visualize subscription renewals with color-coded events
 - 🔔 **Custom Reminders**: Set up notifications for upcoming payments
