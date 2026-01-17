@@ -19,6 +19,12 @@ const routes = [
     path: '/new-subscription',
     name: 'NewSubscription',
     component: SubscriptionForm
+  },
+  {
+    path: '/edit-subscription/:id',
+    name: 'EditSubscription',
+    component: SubscriptionForm,
+    props: route => ({ subscriptionId: route.params.id })
   }
 ];
 
