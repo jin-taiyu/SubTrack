@@ -1,16 +1,24 @@
 <template>
-  <div class="loading-spinner" :class="{ 'loading-spinner--fullscreen': fullscreen }">
-    <div class="spinner">
+  <div
+    class="loading-spinner"
+    :class="{
+      'loading-spinner--fullscreen': fullscreen,
+      'loading-spinner--inline': inline
+    }"
+  >
+    <div class="spinner" :style="spinnerStyle">
       <div class="spinner__ring"></div>
       <div class="spinner__ring"></div>
       <div class="spinner__ring"></div>
     </div>
-    <p v-if="message" class="loading-spinner__message">{{ message }}</p>
+    <p v-if="message && !inline" class="loading-spinner__message">{{ message }}</p>
   </div>
 </template>
 
 <script setup>
-defineProps({
+import { computed } from 'vue';
+
+const props = defineProps({
   message: {
     type: String,
     default: ''
@@ -18,8 +26,21 @@ defineProps({
   fullscreen: {
     type: Boolean,
     default: false
+  },
+  inline: {
+    type: Boolean,
+    default: false
+  },
+  size: {
+    type: Number,
+    default: 48
   }
 });
+
+const spinnerStyle = computed(() => ({
+  '--spinner-size': `${props.size}px`,
+  '--spinner-stroke': `${Math.max(2, Math.round(props.size / 16))}px`
+}));
 </script>
 
 <style scoped>
@@ -30,6 +51,11 @@ defineProps({
   justify-content: center;
   gap: 16px;
   padding: 24px;
+}
+
+.loading-spinner--inline {
+  padding: 0;
+  gap: 0;
 }
 
 .loading-spinner--fullscreen {
@@ -45,8 +71,8 @@ defineProps({
 
 .spinner {
   position: relative;
-  width: 48px;
-  height: 48px;
+  width: var(--spinner-size, 48px);
+  height: var(--spinner-size, 48px);
 }
 
 .spinner__ring {
@@ -54,7 +80,7 @@ defineProps({
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 3px solid transparent;
+  border: var(--spinner-stroke, 3px) solid transparent;
   animation: spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
 }
 
@@ -97,6 +123,12 @@ defineProps({
 
   .loading-spinner__message {
     color: #9ca3af;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner__ring {
+    animation-duration: 1.8s;
   }
 }
 </style>

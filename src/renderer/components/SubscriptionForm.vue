@@ -2,126 +2,148 @@
   <div class="form-page">
     <div class="form-container">
       <div class="form-header">
-        <button class="back-btn" @click="handleCancel">
+        <button type="button" class="back-btn" @click="handleCancel" aria-label="Go back">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M19 12H5M12 19l-7-7 7-7"/>
           </svg>
         </button>
-        <h2>{{ isEditing ? 'Edit Subscription' : 'New Subscription' }}</h2>
+        <div class="form-header__text">
+          <h2>{{ isEditing ? 'Edit Subscription' : 'New Subscription' }}</h2>
+          <p>{{ isEditing ? 'Update details and keep billing dates accurate.' : 'Add your plan details to track upcoming charges.' }}</p>
+        </div>
       </div>
 
-      <form id="subscription-form" @submit.prevent="handleSubmit" novalidate>
-        <div class="form-section">
-          <div class="form-group" :class="{ 'has-error': errors.name }">
-            <label for="name">
-              <span class="label-text">Subscription Name</span>
-              <span class="label-required">*</span>
-            </label>
-            <input
-              type="text"
-              id="name"
-              v-model="formData.name"
-              placeholder="e.g. Netflix, Spotify"
-              @blur="validateField('name')"
-            />
-            <span v-if="errors.name" class="error-message">{{ errors.name }}</span>
-          </div>
+      <form id="subscription-form" @submit.prevent="handleSubmit" novalidate :aria-busy="isLoading ? 'true' : 'false'">
+        <p class="form-hint">Fields marked <span class="label-required">*</span> are required.</p>
 
-          <div class="form-group" :class="{ 'has-error': errors.platform }">
-            <label for="platform">
-              <span class="label-text">Platform</span>
-              <span class="label-required">*</span>
-            </label>
-            <input
-              type="text"
-              id="platform"
-              v-model="formData.platform"
-              placeholder="e.g. Streaming, Music, Software"
-              @blur="validateField('platform')"
-            />
-            <span v-if="errors.platform" class="error-message">{{ errors.platform }}</span>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <div class="form-row">
-            <div class="form-group" :class="{ 'has-error': errors.price }">
-              <label for="price">
-                <span class="label-text">Price</span>
-                <span class="label-required">*</span>
-              </label>
-              <div class="input-with-prefix">
-                <span class="input-prefix">{{ getCurrencySymbol(formData.currency) }}</span>
-                <input
-                  type="number"
-                  id="price"
-                  v-model="formData.price"
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                  @blur="validateField('price')"
-                />
-              </div>
-              <span v-if="errors.price" class="error-message">{{ errors.price }}</span>
-            </div>
-
-            <div class="form-group">
-              <label for="currency">
-                <span class="label-text">Currency</span>
-              </label>
-              <select id="currency" v-model="formData.currency">
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-                <option value="GBP">GBP (£)</option>
-                <option value="JPY">JPY (¥)</option>
-                <option value="CNY">CNY (¥)</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="period">
-                <span class="label-text">Billing Period</span>
-              </label>
-              <select id="period" v-model="formData.period">
-                <option value="monthly">Monthly</option>
-                <option value="quarterly">Quarterly</option>
-                <option value="yearly">Yearly</option>
-              </select>
-            </div>
-
-            <div class="form-group" :class="{ 'has-error': errors.nextPaymentDate }">
-              <label for="nextPaymentDate">
-                <span class="label-text">Next Payment Date</span>
+        <fieldset class="form-fields" :disabled="isLoading">
+          <div class="form-section">
+            <h3 class="form-section__title">Basics</h3>
+            <div class="form-group" :class="{ 'has-error': errors.name }">
+              <label for="name">
+                <span class="label-text">Subscription Name</span>
                 <span class="label-required">*</span>
               </label>
               <input
-                type="date"
-                id="nextPaymentDate"
-                v-model="formData.nextPaymentDate"
-                @blur="validateField('nextPaymentDate')"
+                type="text"
+                id="name"
+                v-model="formData.name"
+                placeholder="e.g. Netflix, Spotify"
+                autocomplete="organization"
+                :aria-invalid="errors.name ? 'true' : 'false'"
+                :aria-describedby="errors.name ? 'name-error' : null"
+                @blur="validateField('name')"
               />
-              <span v-if="errors.nextPaymentDate" class="error-message">{{ errors.nextPaymentDate }}</span>
+              <span v-if="errors.name" id="name-error" class="error-message">{{ errors.name }}</span>
+            </div>
+
+            <div class="form-group" :class="{ 'has-error': errors.platform }">
+              <label for="platform">
+                <span class="label-text">Platform</span>
+                <span class="label-required">*</span>
+              </label>
+              <input
+                type="text"
+                id="platform"
+                v-model="formData.platform"
+                placeholder="e.g. Streaming, Music, Software"
+                autocomplete="organization-title"
+                :aria-invalid="errors.platform ? 'true' : 'false'"
+                :aria-describedby="errors.platform ? 'platform-error' : null"
+                @blur="validateField('platform')"
+              />
+              <span v-if="errors.platform" id="platform-error" class="error-message">{{ errors.platform }}</span>
             </div>
           </div>
-        </div>
 
-        <div class="form-section">
-          <div class="form-group">
-            <label for="paymentMethod">
-              <span class="label-text">Payment Method</span>
-            </label>
-            <input
-              type="text"
-              id="paymentMethod"
-              v-model="formData.paymentMethod"
-              placeholder="e.g. Visa **** 1234"
-            />
+          <div class="form-section">
+            <h3 class="form-section__title">Billing</h3>
+            <div class="form-row">
+              <div class="form-group" :class="{ 'has-error': errors.price }">
+                <label for="price">
+                  <span class="label-text">Price</span>
+                  <span class="label-required">*</span>
+                </label>
+                <div class="input-with-prefix">
+                  <span class="input-prefix">{{ getCurrencySymbol(formData.currency) }}</span>
+                  <input
+                    type="number"
+                    id="price"
+                    v-model="formData.price"
+                    min="0"
+                    step="0.01"
+                    inputmode="decimal"
+                    placeholder="0.00"
+                    :aria-invalid="errors.price ? 'true' : 'false'"
+                    :aria-describedby="errors.price ? 'price-error' : null"
+                    @blur="validateField('price')"
+                  />
+                </div>
+                <span v-if="errors.price" id="price-error" class="error-message">{{ errors.price }}</span>
+              </div>
+
+              <div class="form-group">
+                <label for="currency">
+                  <span class="label-text">Currency</span>
+                </label>
+                <select id="currency" v-model="formData.currency">
+                  <option value="USD">USD ($)</option>
+                  <option value="EUR">EUR (€)</option>
+                  <option value="GBP">GBP (£)</option>
+                  <option value="JPY">JPY (¥)</option>
+                  <option value="CNY">CNY (¥)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="period">
+                  <span class="label-text">Billing Period</span>
+                </label>
+                <select id="period" v-model="formData.period">
+                  <option value="monthly">Monthly</option>
+                  <option value="quarterly">Quarterly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
+              </div>
+
+              <div class="form-group" :class="{ 'has-error': errors.nextPaymentDate }">
+                <label for="nextPaymentDate">
+                  <span class="label-text">Next Payment Date</span>
+                  <span class="label-required">*</span>
+                </label>
+                <input
+                  type="date"
+                  id="nextPaymentDate"
+                  v-model="formData.nextPaymentDate"
+                  :aria-invalid="errors.nextPaymentDate ? 'true' : 'false'"
+                  :aria-describedby="errors.nextPaymentDate ? 'payment-date-error' : null"
+                  @blur="validateField('nextPaymentDate')"
+                />
+                <span v-if="errors.nextPaymentDate" id="payment-date-error" class="error-message">{{ errors.nextPaymentDate }}</span>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div v-if="errorMessage" class="form-error-banner">
+          <div class="form-section">
+            <h3 class="form-section__title">Payment Method</h3>
+            <div class="form-group">
+              <label for="paymentMethod">
+                <span class="label-text">Payment Method</span>
+              </label>
+              <input
+                type="text"
+                id="paymentMethod"
+                v-model="formData.paymentMethod"
+                placeholder="e.g. Visa **** 1234"
+                autocomplete="cc-name"
+              />
+            </div>
+          </div>
+        </fieldset>
+
+        <div v-if="errorMessage" class="form-error-banner" role="alert">
           <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"/>
             <line x1="12" y1="8" x2="12" y2="12"/>
@@ -135,8 +157,8 @@
             Cancel
           </button>
           <button type="submit" class="btn btn--primary" :disabled="isLoading">
-            <LoadingSpinner v-if="isLoading" />
-            <span v-else>{{ isEditing ? 'Update' : 'Add Subscription' }}</span>
+            <LoadingSpinner v-if="isLoading" inline :size="16" />
+            <span>{{ isLoading ? 'Saving...' : (isEditing ? 'Update Subscription' : 'Add Subscription') }}</span>
           </button>
         </div>
       </form>
@@ -145,7 +167,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import dayjs from 'dayjs';
 import { useSubscriptionStore } from '../stores/subscriptions';
@@ -178,26 +200,22 @@ const formData = ref({ ...defaultSubscription });
 const errors = ref({});
 const errorMessage = ref('');
 const isLoading = ref(false);
-const originalSubscription = ref(null);
 
 const isEditing = computed(() => !!props.subscriptionId);
 
 onMounted(async () => {
-  // Check if there's a date in query params
-  if (route.query.date) {
-    formData.value.nextPaymentDate = route.query.date;
+  const queryDate = Array.isArray(route.query.date) ? route.query.date[0] : route.query.date;
+  if (queryDate) {
+    formData.value.nextPaymentDate = queryDate;
   }
 
-  // Check if editing existing subscription
   if (props.subscriptionId) {
-    // Load subscriptions if not already loaded
     if (subscriptionStore.subscriptions.length === 0) {
       await subscriptionStore.loadSubscriptions();
     }
 
     const sub = subscriptionStore.getSubscriptionById(props.subscriptionId);
     if (sub) {
-      originalSubscription.value = sub;
       formData.value = {
         name: sub.name || '',
         platform: sub.platform || '',
@@ -233,12 +251,13 @@ function validateField(field) {
         errors.value.platform = 'Platform is required';
       }
       break;
-    case 'price':
+    case 'price': {
       const price = parseFloat(formData.value.price);
       if (isNaN(price) || price < 0) {
         errors.value.price = 'Please enter a valid price';
       }
       break;
+    }
     case 'nextPaymentDate':
       if (!formData.value.nextPaymentDate) {
         errors.value.nextPaymentDate = 'Payment date is required';
@@ -253,7 +272,7 @@ function validateForm() {
   validateField('price');
   validateField('nextPaymentDate');
 
-  return Object.values(errors.value).every(e => !e);
+  return Object.values(errors.value).every((value) => !value);
 }
 
 async function handleSubmit() {
@@ -298,17 +317,18 @@ function handleCancel() {
 
 <style scoped>
 .form-page {
-  min-height: calc(100vh - 52px);
+  min-height: 100%;
   padding: 24px;
   display: flex;
   justify-content: center;
+  align-items: flex-start;
   background: var(--bg-secondary, #f9fafb);
 }
 
 .form-container {
   width: 100%;
   max-width: 560px;
-  background: var(--bg-primary, white);
+  background: var(--bg-primary, #ffffff);
   border-radius: var(--radius-lg, 16px);
   box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
   border: 1px solid var(--border-color, #e5e7eb);
@@ -317,20 +337,26 @@ function handleCancel() {
 
 .form-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   padding: 20px 24px;
   border-bottom: 1px solid var(--border-color, #e5e7eb);
   background: var(--bg-tertiary, #f3f4f6);
 }
 
+.form-header__text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .back-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  background: var(--bg-primary, white);
+  width: 38px;
+  height: 38px;
+  background: var(--bg-primary, #ffffff);
   border: 1px solid var(--border-color, #e5e7eb);
   border-radius: var(--radius-md, 10px);
   color: var(--text-secondary, #4b5563);
@@ -343,15 +369,44 @@ function handleCancel() {
   color: var(--text-primary, #111827);
 }
 
+.back-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.3);
+}
+
 .form-header h2 {
   margin: 0;
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--text-primary, #111827);
 }
 
+.form-header p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-tertiary, #6b7280);
+}
+
 form {
-  padding: 24px;
+  padding: 22px 24px 24px;
+}
+
+.form-hint {
+  margin: 0 0 14px;
+  font-size: 12px;
+  color: var(--text-tertiary, #6b7280);
+}
+
+.form-fields {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.form-fields:disabled {
+  opacity: 0.8;
 }
 
 .form-section {
@@ -359,7 +414,16 @@ form {
 }
 
 .form-section:last-of-type {
-  margin-bottom: 16px;
+  margin-bottom: 14px;
+}
+
+.form-section__title {
+  margin: 0 0 10px;
+  color: var(--text-tertiary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .form-group {
@@ -390,12 +454,13 @@ form {
 .form-group input,
 .form-group select {
   width: 100%;
-  padding: 12px 14px;
+  min-height: 44px;
+  padding: 11px 14px;
   border: 1px solid var(--border-color, #e5e7eb);
   border-radius: var(--radius-md, 10px);
   font-size: 14px;
   color: var(--text-primary, #111827);
-  background: var(--bg-primary, white);
+  background: var(--bg-primary, #ffffff);
   transition: all 0.2s ease;
 }
 
@@ -429,7 +494,7 @@ form {
 
 .form-row {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -484,11 +549,12 @@ form {
   cursor: pointer;
   transition: all 0.2s ease;
   border: none;
-  min-width: 120px;
+  min-width: 140px;
+  min-height: 44px;
 }
 
 .btn:disabled {
-  opacity: 0.6;
+  opacity: 0.62;
   cursor: not-allowed;
 }
 
@@ -504,7 +570,7 @@ form {
 
 .btn--primary {
   background: var(--gradient-primary, linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%));
-  color: white;
+  color: #ffffff;
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }
 
@@ -517,7 +583,15 @@ form {
   transform: translateY(0);
 }
 
-/* Dark mode */
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.32);
+}
+
+.btn--primary:focus-visible {
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.36), 0 6px 14px rgba(139, 92, 246, 0.35);
+}
+
 @media (prefers-color-scheme: dark) {
   .form-container {
     background: #1f2937;
@@ -542,6 +616,12 @@ form {
 
   .form-header h2 {
     color: #f3f4f6;
+  }
+
+  .form-header p,
+  .form-hint,
+  .form-section__title {
+    color: #9ca3af;
   }
 
   .label-text {
@@ -574,14 +654,34 @@ form {
   }
 }
 
-/* Responsive */
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .back-btn {
+    transition: none;
+  }
+
+  .btn--primary:hover:not(:disabled),
+  .btn--primary:active:not(:disabled) {
+    transform: none;
+  }
+}
+
 @media (max-width: 640px) {
   .form-page {
+    padding: 14px;
+  }
+
+  .form-header {
+    padding: 16px;
+  }
+
+  form {
     padding: 16px;
   }
 
   .form-row {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .form-actions {

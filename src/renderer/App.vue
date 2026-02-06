@@ -3,20 +3,30 @@
     <header class="app-header">
       <div class="title-bar">
         <div class="logo-section">
-          <div class="logo-icon">📅</div>
+          <div class="logo-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="17" rx="3"/>
+              <line x1="8" y1="2.5" x2="8" y2="6"/>
+              <line x1="16" y1="2.5" x2="16" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+              <circle cx="8" cy="14.5" r="1"/>
+              <circle cx="12" cy="14.5" r="1"/>
+              <circle cx="16" cy="14.5" r="1"/>
+            </svg>
+          </div>
           <h1>SubTrack</h1>
         </div>
-        <button class="add-btn" @click="navigateToNewSubscription">
+        <button type="button" class="add-btn" @click="navigateToNewSubscription">
           <span class="add-btn__icon">+</span>
           <span class="add-btn__text">Add Subscription</span>
         </button>
         <div class="window-controls">
-          <button class="window-btn minimize-btn" @click="minimizeWindow" title="Minimize">
+          <button type="button" class="window-btn minimize-btn" @click="minimizeWindow" title="Minimize" aria-label="Minimize window">
             <svg viewBox="0 0 12 12" width="12" height="12">
               <line x1="2" y1="6" x2="10" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
           </button>
-          <button class="window-btn maximize-btn" @click="maximizeWindow" title="Maximize">
+          <button type="button" class="window-btn maximize-btn" @click="maximizeWindow" title="Maximize" aria-label="Maximize window">
             <svg v-if="!isMaximized" viewBox="0 0 12 12" width="12" height="12">
               <rect x="2" y="2" width="8" height="8" fill="none" stroke="currentColor" stroke-width="1.5" rx="1"/>
             </svg>
@@ -24,7 +34,7 @@
               <rect x="3" y="3" width="6" height="6" fill="none" stroke="currentColor" stroke-width="1.5" rx="1"/>
             </svg>
           </button>
-          <button class="window-btn close-btn" @click="closeWindow" title="Close">
+          <button type="button" class="window-btn close-btn" @click="closeWindow" title="Close" aria-label="Close window">
             <svg viewBox="0 0 12 12" width="12" height="12">
               <line x1="3" y1="3" x2="9" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
               <line x1="9" y1="3" x2="3" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -163,6 +173,8 @@ onUnmounted(() => {
   --transition-fast: 0.15s ease;
   --transition-normal: 0.25s ease;
   --transition-slow: 0.4s ease;
+  --focus-ring: 0 0 0 3px rgba(167, 139, 250, 0.38);
+  --focus-ring-strong: 0 0 0 4px rgba(167, 139, 250, 0.45);
 
   /* Typography */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
@@ -201,11 +213,17 @@ onUnmounted(() => {
 
 body {
   font-family: var(--font-family);
-  line-height: 1.6;
+  line-height: 1.55;
   color: var(--text-primary);
   background: var(--bg-secondary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+select {
+  font: inherit;
 }
 
 .app-container {
@@ -235,22 +253,43 @@ body {
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
 }
 
+.app-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(420px 90px at 25% -40%, rgba(139, 92, 246, 0.38), transparent 68%),
+    radial-gradient(350px 80px at 75% -30%, rgba(99, 102, 241, 0.28), transparent 72%);
+  opacity: 0.85;
+}
+
 .title-bar {
   display: flex;
   align-items: center;
   padding: 0 16px;
-  height: 52px;
+  height: 56px;
   padding-left: 80px;
+  position: relative;
+  z-index: 1;
 }
 
 .logo-section {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .logo-icon {
-  font-size: 20px;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.08) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #f5f3ff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   animation: float 3s ease-in-out infinite;
 }
 
@@ -268,6 +307,7 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  text-shadow: 0 0 24px rgba(139, 92, 246, 0.35);
 }
 
 .add-btn {
@@ -277,7 +317,7 @@ body {
   background: var(--gradient-primary);
   color: white;
   border: none;
-  padding: 8px 16px;
+  padding: 9px 16px;
   border-radius: var(--radius-md);
   cursor: pointer;
   font-weight: 600;
@@ -286,7 +326,8 @@ body {
   -webkit-app-region: no-drag;
   margin-left: auto;
   margin-right: 12px;
-  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.32);
+  min-height: 36px;
 }
 
 .add-btn:hover {
@@ -296,6 +337,11 @@ body {
 
 .add-btn:active {
   transform: translateY(0);
+}
+
+.add-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring-strong), 0 4px 12px rgba(139, 92, 246, 0.35);
 }
 
 .add-btn__icon {
@@ -314,8 +360,8 @@ body {
   color: rgba(255, 255, 255, 0.8);
   border: none;
   cursor: pointer;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -326,6 +372,13 @@ body {
 .window-btn:hover {
   background: rgba(255, 255, 255, 0.2);
   color: white;
+}
+
+.window-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
 }
 
 .window-btn.close-btn:hover {
@@ -378,6 +431,17 @@ body {
   transform: translateY(-8px);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Modal Base Styles */
 .modal-overlay {
   position: fixed;
@@ -408,6 +472,7 @@ body {
 @media (max-width: 640px) {
   .title-bar {
     padding-left: 16px;
+    height: 52px;
   }
 
   .add-btn__text {
@@ -416,6 +481,17 @@ body {
 
   .add-btn {
     padding: 8px 12px;
+    min-width: 42px;
+    margin-right: 8px;
+  }
+
+  .window-controls {
+    gap: 6px;
+  }
+
+  .window-btn {
+    width: 32px;
+    height: 32px;
   }
 }
 </style>
